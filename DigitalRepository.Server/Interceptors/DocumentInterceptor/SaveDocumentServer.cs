@@ -4,12 +4,14 @@ using DigitalRepository.Server.Entities.Request;
 using DigitalRepository.Server.Entities.Response;
 using DigitalRepository.Server.Interceptors.Interfaces;
 using DigitalRepository.Server.Services.Core;
+using DigitalRepository.Server.Utils;
 using FluentValidation.Results;
 using Lombok.NET;
 
 namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
 {
     [AllArgsConstructor]
+    [Order(2)]
     public partial class SaveDocumentServer : IEntityBeforeCreateInterceptor<Document, DocumentRequest>
     {
         /// <summary>

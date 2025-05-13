@@ -37,7 +37,11 @@ export interface TableServerProps<T> {
   fieldRangeOfDates?: string;
   width?: boolean;
   selectedRows?: boolean;
-  onSelectedRowsChange?: (state: unknown) => void;
+  onSelectedRowsChange?: (state: {
+    allSelected: boolean;
+    selectedCount: number;
+    selectedRows: T[];
+  }) => void;
 }
 
 export const TableServer = <T extends object>({
@@ -142,7 +146,7 @@ export const TableServer = <T extends object>({
           selectedField={selectedField}
         />
       )}
-      <div className="min-h-[500px] overflow-auto">
+      <div className="min-h-[495px] overflow-auto">
         <DataTable
           fixedHeader
           highlightOnHover
@@ -157,7 +161,7 @@ export const TableServer = <T extends object>({
           customStyles={styles ?? customStyles}
           data={data?.data ?? []}
           expandableRows={width}
-          fixedHeaderScrollHeight="345px"
+          fixedHeaderScrollHeight="325px"
           noDataComponent={
             <MesajeNoData mesaje={`No se encontraros datos ${text}`} />
           }

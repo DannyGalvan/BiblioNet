@@ -22,6 +22,7 @@ export const nameRoutes = {
   documents: "files",
   error: "/error",
   create: "create",
+  download: "download",
 };
 
 export const authInitialState: InitialAuth = {

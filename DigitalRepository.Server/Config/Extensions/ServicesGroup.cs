@@ -33,6 +33,7 @@ namespace DigitalRepository.Server.Config.Extensions
             services.AddScoped<IFilterTranslator<Document>, FilterTranslator<Document>>();
             //interceptors
             services.AddScoped<IEntityBeforeCreateInterceptor<Document, DocumentRequest>, SaveDocumentServer>();
+            services.AddScoped<IEntityBeforeCreateInterceptor<Document, DocumentRequest>, ValidatePdfDocument>();
 
             // other services
             services.AddScoped<ISendMail, SendEmail>();

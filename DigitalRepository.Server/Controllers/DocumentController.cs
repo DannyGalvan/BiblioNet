@@ -1,4 +1,5 @@
-﻿using DigitalRepository.Server.Services.Interfaces;
+﻿using DigitalRepository.Server.Config.Entities;
+using DigitalRepository.Server.Services.Interfaces;
 using Lombok.NET;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -7,16 +8,19 @@ using DigitalRepository.Server.Entities.Models;
 using DigitalRepository.Server.Entities.Request;
 using DigitalRepository.Server.Entities.Response;
 using FluentValidation.Results;
+using Microsoft.Extensions.Options;
+using System.IO.Compression;
 
 namespace DigitalRepository.Server.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
     [AllArgsConstructor]
-    [Authorize]
+    //[Authorize]
     public partial class DocumentController : CommonController
     {
         private readonly IEntityService<Document, DocumentRequest, long> _documentService;
+        private readonly IOptions<Paths> _configPaths;
         private readonly IMapper _mapper;
 
         [HttpGet]
@@ -46,11 +50,117 @@ namespace DigitalRepository.Server.Controllers
             };
 
             return BadRequest(errorResponse);
+        }
 
+        [HttpGet("Download")]
+        public IActionResult DownloadDocuments(string filters)
+        {
+            var response = _documentService.GetAll(filters,false,1,100);
+
+            if (response.Success)
+            {
+                if (response.Data!.Count == 0)
+                {
+                    Response<List<ValidationFailure>> responseCount = new()
+                    {
+                        Data = response.Errors,
+                        Success = response.Success,
+                        Message = "Se requiere al menos un archivo para descargar"
+                    };
+
+                    return BadRequest(responseCount);
+                }
+
+                using var zipMemoryStream = new MemoryStream();
+                // Crear un archivo zip en memoria
+                using (var archive = new ZipArchive(zipMemoryStream, ZipArchiveMode.Create, true))
+                {
+                    foreach (var documentPath in response.Data.Select(document => Path.Combine(_configPaths.Value.SaveDocuments, document.Path)))
+                    {
+                        if (!System.IO.File.Exists(documentPath))
+                        {
+
+                            Response<List<ValidationFailure>> errorDocument = new()
+                            {
+                                Data = response.Errors,
+                                Success = response.Success,
+                                Message = $"El archivo {documentPath} no existe."
+                            };
+
+                            return BadRequest(errorDocument);
+                        }
+
+                        try
+                        {
+                            var fileName = Path.GetFileName(documentPath);
+                            var zipEntry = archive.CreateEntry(fileName);
+
+                            using var fileStream = new FileStream(documentPath, FileMode.Open, FileAccess.Read);
+                            using var zipEntryStream = zipEntry.Open();
+                            fileStream.CopyTo(zipEntryStream);
+                        }
+                        catch (Exception ex)
+                        {
+                            return StatusCode(500,
+                                $"Error al agregar el archivo {documentPath} al archivo zip: {ex.Message}");
+                        }
+                    }
+                }
+
+                zipMemoryStream.Seek(0, SeekOrigin.Begin); 
+                return File(zipMemoryStream.ToArray(), "application/zip", "documents.zip");
+            }
+
+            Response<List<ValidationFailure>> errorResponse = new()
+            {
+                Data = response.Errors,
+                Success = response.Success,
+                Message = response.Message
+            };
+
+            return BadRequest(errorResponse);
+        }
+
+        [HttpGet("Download/{id}")]
+        public IActionResult DownloadDocument(long id)
+        {
+            var response = _documentService.GetById(id);
+
+            if (response.Success)
+            {
+                string documentPath = Path.Combine(_configPaths.Value.SaveDocuments, response.Data!.Path);
+
+                if (!System.IO.File.Exists(documentPath))
+                {
+
+                    Response<List<ValidationFailure>> errorDocument = new()
+                    {
+                        Data = response.Errors,
+                        Success = response.Success,
+                        Message = "El Documento no existe."
+                    };
+
+                    return BadRequest(errorDocument);
+                }
+
+                var fileBytes = System.IO.File.ReadAllBytes(documentPath);
+                var fileName = Path.GetFileName(documentPath);
+
+                return File(fileBytes, "application/pdf", fileName);
+            }
+
+            Response<List<ValidationFailure>> errorResponse = new()
+            {
+                Data = response.Errors,
+                Success = response.Success,
+                Message = response.Message
+            };
+
+            return BadRequest(errorResponse);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetSignature(long id)
+        public IActionResult GetDocument(long id)
         {
             var response = _documentService.GetById(id);
 
@@ -78,7 +188,7 @@ namespace DigitalRepository.Server.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult CreateSignature([FromForm] DocumentRequest signatureRequest)
+        public IActionResult CreateDocument([FromForm] DocumentRequest signatureRequest)
         {
             signatureRequest.CreatedBy = GetUserId();
             var response = _documentService.Create(signatureRequest);
@@ -106,7 +216,7 @@ namespace DigitalRepository.Server.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateSignature([FromForm] DocumentRequest signatureRequest)
+        public IActionResult UpdateDocument([FromForm] DocumentRequest signatureRequest)
         {
             signatureRequest.UpdatedBy = GetUserId();
             var response = _documentService.Update(signatureRequest);
@@ -134,7 +244,7 @@ namespace DigitalRepository.Server.Controllers
         }
 
         [HttpPatch]
-        public IActionResult PartialUpdateSignature([FromForm] DocumentRequest signatureRequest)
+        public IActionResult PartialUpdateDocument([FromForm] DocumentRequest signatureRequest)
         {
             signatureRequest.UpdatedBy = GetUserId();
             var response = _documentService.PartialUpdate(signatureRequest);
@@ -162,7 +272,7 @@ namespace DigitalRepository.Server.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteSignature(long id)
+        public IActionResult DeleteDocument(long id)
         {
             var response = _documentService.Delete(id, GetUserId());
 
