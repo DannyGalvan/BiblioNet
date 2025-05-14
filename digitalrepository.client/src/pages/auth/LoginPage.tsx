@@ -135,7 +135,6 @@ export function Component() {
                   variant="bordered"
                   onChange={handleChange}
                 />
-                {/* <Checkbox>Soy estudiante en la plataforma</Checkbox> */}
                 <Button
                   fullWidth
                   className="py-4 mt-4 font-bold"
@@ -150,12 +149,6 @@ export function Component() {
                 </Button>
               </Form>
               <div className="flex flex-col items-center mt-4 gap-2">
-                <Link
-                  className="font-bold underline  text-cyan-500"
-                  to={"/forgot-password"}
-                >
-                  Olvido su contraseña?
-                </Link>
                 <Link
                   className="font-bold underline  text-cyan-500"
                   to={"/forgot-password"}

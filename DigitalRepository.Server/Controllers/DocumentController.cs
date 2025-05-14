@@ -10,18 +10,21 @@ using DigitalRepository.Server.Entities.Response;
 using FluentValidation.Results;
 using Microsoft.Extensions.Options;
 using System.IO.Compression;
+using DigitalRepository.Server.Context;
 
 namespace DigitalRepository.Server.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
     [AllArgsConstructor]
-    //[Authorize]
+    [Authorize]
     public partial class DocumentController : CommonController
     {
         private readonly IEntityService<Document, DocumentRequest, long> _documentService;
         private readonly IOptions<Paths> _configPaths;
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         [HttpGet]
         public ActionResult Get(string? filters, bool thenInclude, int pageNumber = 1, int pageSize = 30)
@@ -75,8 +78,10 @@ namespace DigitalRepository.Server.Controllers
                 // Crear un archivo zip en memoria
                 using (var archive = new ZipArchive(zipMemoryStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (var documentPath in response.Data.Select(document => Path.Combine(_configPaths.Value.SaveDocuments, document.Path)))
+                    foreach (var document in response.Data)
                     {
+                        var documentPath = Path.Combine(_configPaths.Value.SaveDocuments, document.Path);
+
                         if (!System.IO.File.Exists(documentPath))
                         {
 
@@ -98,6 +103,20 @@ namespace DigitalRepository.Server.Controllers
                             using var fileStream = new FileStream(documentPath, FileMode.Open, FileAccess.Read);
                             using var zipEntryStream = zipEntry.Open();
                             fileStream.CopyTo(zipEntryStream);
+
+                            var download = new Download
+                            {
+                                UserIp = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ??
+                                         "IP no disponible",
+                                CreatedBy = GetUserId(),
+                                State = 1,
+                                CreatedAt = DateTime.UtcNow,
+                                DocumentId = document.Id,
+                                OperationType = 1,
+                            };
+
+                            _context.Downloads.Add(download);
+                          
                         }
                         catch (Exception ex)
                         {
@@ -106,7 +125,7 @@ namespace DigitalRepository.Server.Controllers
                         }
                     }
                 }
-
+                _context.SaveChanges();
                 zipMemoryStream.Seek(0, SeekOrigin.Begin); 
                 return File(zipMemoryStream.ToArray(), "application/zip", "documents.zip");
             }
@@ -142,6 +161,21 @@ namespace DigitalRepository.Server.Controllers
 
                     return BadRequest(errorDocument);
                 }
+
+                var download = new Download
+                {
+                    UserIp = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ??
+                             "IP no disponible",
+                    CreatedBy = GetUserId(),
+                    State = 1,
+                    CreatedAt = DateTime.UtcNow,
+                    DocumentId = id,
+                    OperationType = 1,
+                };
+
+                _context.Downloads.Add(download);
+                _context.SaveChanges();
+
 
                 var fileBytes = System.IO.File.ReadAllBytes(documentPath);
                 var fileName = Path.GetFileName(documentPath);

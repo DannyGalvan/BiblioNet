@@ -7,6 +7,7 @@ using DigitalRepository.Server.Services.Core;
 using DigitalRepository.Server.Utils;
 using FluentValidation.Results;
 using Lombok.NET;
+using MapsterMapper;
 
 namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
 {
@@ -20,6 +21,7 @@ namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
         private readonly ILogger<EntityService<Document, DocumentRequest, long>> _logger;
         private readonly IResources _resources;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
         /// <summary>
         /// The Execute
@@ -41,21 +43,11 @@ namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
                 }
 
                 response.Success = true;
-                response.Message = "Imagen guardada correctamente";
-                response.Data = new Document
-                {
-                    CreatedBy = request.CreatedBy!.Value,
-                    ElaborationDate = DateTime.UtcNow,
-                    LoadDate = DateTime.ParseExact(request.ElaborationDate!, "yyyy-MM-dd", null).ToUniversalTime(),
-                    Size = request.File!.Length,
-                    State = 1,
-                    UserId = request.CreatedBy!.Value,
-                    UserIp = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "IP no disponible",
-                    UpdatedBy = request.UpdatedBy,
-                    Path = image.Data!,
-                    DocumentNumber = request.DocumentNumber!,
-                    Author = request.Author!
-                };
+                response.Message = "Documento guardado correctamente";
+                response.Data = _mapper.Map<DocumentRequest, Document>(request);
+                response.Data.Path = image.Data!;
+                response.Data.UserIp = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ??
+                                       "IP no disponible";
 
                 return response;
             }

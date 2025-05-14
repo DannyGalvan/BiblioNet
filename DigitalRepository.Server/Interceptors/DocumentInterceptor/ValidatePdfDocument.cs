@@ -13,7 +13,7 @@ using Lombok.NET;
 namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
 {
     [AllArgsConstructor]
-    [Order(2)]
+    [Order(1)]
     public partial class ValidatePdfDocument : IEntityBeforeCreateInterceptor<Document, DocumentRequest>
     {
         /// <summary>

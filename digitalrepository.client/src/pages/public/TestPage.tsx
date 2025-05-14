@@ -1,18 +1,23 @@
-import { Button } from "@heroui/button";
+import { Image } from "@heroui/image";
+import { Images } from "../../assets/images/images";
 import { useAuth } from "../../hooks/useAuth";
 
 export const TestPage = () => {
-  const { operations, logout } = useAuth();
+  const { email } = useAuth();
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="font-bold text-2xl">Test Page</h1>
-      <p>This is a test page to check the integration of Hero UI.</p>
-      <p>Click the button below:</p>
-      <Button color="primary" onPress={logout}>
-        Sing Out
-      </Button>
-      <p>Operations: {JSON.stringify(operations, null, 5)}</p>
+    <div className="page-view flex flex-col gap-10 items-center justify-center bg-gray-100">
+      <h1 className="font-bold text-2xl">Bienvenido de Nuevo {email}</h1>
+      <Image
+        radius="full"
+        className="border-2 border-gray-300"
+        isZoomed
+        isBlurred
+        alt="logo"
+        src={Images.logo}
+        width={300}
+        height={300}
+      />
     </div>
   );
 };

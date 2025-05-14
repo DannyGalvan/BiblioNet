@@ -28,15 +28,13 @@ export const getDocuments = async (
 ): Promise<ApiResponse<DocumentResponse[]>> => {
   let response: ApiResponse<DocumentResponse[]>;
 
-  console.log("filter", filter);
-
   if (filter) {
     response = await api.get<any, ApiResponse<DocumentResponse[]>>(
-      `Document?filters=${filter}&page=${page}&pageSize=${pageSize}`,
+      `Document?filters=${filter}&pageNumber=${page}&pageSize=${pageSize}`,
     );
   } else {
     response = await api.get<object, ApiResponse<DocumentResponse[]>>(
-      `Document?page=${page}&pageSize=${pageSize}`,
+      `Document?pageNumber=${page}&pageSize=${pageSize}`,
     );
   }
 
