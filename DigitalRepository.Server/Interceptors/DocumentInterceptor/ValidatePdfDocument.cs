@@ -8,6 +8,7 @@ using FluentValidation.Results;
 using iText.Kernel.Exceptions;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Xobject;
 using Lombok.NET;
 
 namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
@@ -71,7 +72,7 @@ namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
                     var page = pdfDoc.GetPage(i);
                     var content = PdfTextExtractor.GetTextFromPage(page);
 
-                    if (!string.IsNullOrWhiteSpace(content)) continue;
+                    if (!string.IsNullOrWhiteSpace(content)) break;
 
                     response.Data = null;
                     response.Success = false;

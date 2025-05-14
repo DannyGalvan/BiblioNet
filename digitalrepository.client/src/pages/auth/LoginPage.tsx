@@ -4,7 +4,6 @@ import { Form } from "@heroui/form";
 import { Input } from "@heroui/input";
 
 import { Image } from "@heroui/image";
-import { Link } from "react-router";
 import { Images } from "../../assets/images/images";
 import { Icon } from "../../components/icons/Icon";
 import { Response } from "../../components/messages/Response";
@@ -148,14 +147,6 @@ export function Component() {
                   Iniciar Sesión
                 </Button>
               </Form>
-              <div className="flex flex-col items-center mt-4 gap-2">
-                <Link
-                  className="font-bold underline  text-cyan-500"
-                  to={"/forgot-password"}
-                >
-                  No tienes cuenta? Registrate
-                </Link>
-              </div>
             </CardBody>
           </Card>
         </div>
