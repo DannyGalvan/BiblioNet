@@ -16,6 +16,7 @@ export const PdfViewer = ({ fileBlob }: { fileBlob: Blob | string }) => {
       UI.loadDocument(window.URL.createObjectURL(fileBlob as Blob), {
         filename: "document.pdf",
       });
+      UI.setZoomLevel(1.5);
     });
 
     return () => {
