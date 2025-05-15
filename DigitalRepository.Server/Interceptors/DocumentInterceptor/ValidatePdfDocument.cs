@@ -8,6 +8,7 @@ using FluentValidation.Results;
 using iText.Kernel.Exceptions;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Xobject;
 using Lombok.NET;
 
 namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
@@ -73,11 +74,30 @@ namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
 
                     if (!string.IsNullOrWhiteSpace(content)) break;
 
+                    var resources = page.GetResources();
+                    var xObjectNames = resources.GetResourceNames();
+
+                    bool hasImage = false;
+                    foreach (var name in xObjectNames)
+                    {
+                        string image = name.GetValue().ToLower();
+                        if (image.Contains("image"))
+                        {
+                            hasImage = true;
+                        }
+                    }
+
+                    if (hasImage)
+                    {
+                        break;
+                    }
+
                     response.Data = null;
                     response.Success = false;
                     response.Message = "El Pdf no tiene contenido";
                     return response;
                 }
+
 
                 return response;
             }
