@@ -54,38 +54,28 @@ export const downloadPdf = async (id: number) => {
     // Verificar si la respuesta es un blob
     if (!(response instanceof Blob && response.type === "application/pdf")) {
       console.error("Error al descargar el archivo:", response);
-      return false;
+      return { success: false, pdf: null };
     }
 
     // Verificar si la respuesta es un error
     if ((response as any)?.success) {
       console.error("Error al descargar el archivo:", response);
-      return false;
+      return { success: false, pdf: null };
     }
 
     // Crear un enlace para descargar el archivo
     const blob = new Blob([response], { type: "application/pdf" });
 
-    // Crear una URL para el blob
-    const downloadUrl = window.URL.createObjectURL(blob);
-
-    // Crear un elemento <a> temporal para descargar el archivo
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.setAttribute("download", id + ".pdf"); // Nombre del archivo a descargar
-
-    // Hacer clic en el enlace para descargar
-    document.body.appendChild(link);
-    link.click();
-
-    // Limpiar el enlace
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl); // Liberar la URL del objeto
-
-    return true;
+    return {
+      success: true,
+      pdf: blob,
+    };
   } catch (error) {
     console.error("Error al descargar el archivo:", error);
-    return false;
+    return {
+      success: false,
+      pdf: null,
+    };
   }
 };
 

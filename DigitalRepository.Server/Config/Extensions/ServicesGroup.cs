@@ -1,13 +1,11 @@
-﻿
-using DigitalRepository.Interfaces;
-using DigitalRepository.Server.Entities.Models;
+﻿using DigitalRepository.Server.Entities.Models;
 using DigitalRepository.Server.Entities.Request;
 using DigitalRepository.Server.Interceptors.DocumentInterceptor;
 using DigitalRepository.Server.Interceptors.Interfaces;
 using DigitalRepository.Server.Services.Core;
 using DigitalRepository.Server.Services.Interfaces;
 using DigitalRepository.Server.Utils;
-using DigitalRepository.Utils;
+using DigitalRepository.Server.Utils.Interfaces;
 
 namespace DigitalRepository.Server.Config.Extensions
 {

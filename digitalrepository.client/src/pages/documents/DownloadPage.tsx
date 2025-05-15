@@ -1,7 +1,15 @@
 import { Button } from "@heroui/button";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@heroui/modal";
 import { addToast } from "@heroui/toast";
 import { useState } from "react";
 import { DownloadDocumentColumns } from "../../components/columns/DownloadDocumentColumns";
+import { PdfContainer } from "../../components/content/PDFContainer";
 import { Icon } from "../../components/icons/Icon";
 import { TableServer } from "../../components/tables/TableServer";
 import Protected from "../../routes/middlewares/Protected";
@@ -11,7 +19,13 @@ import { compactGrid } from "../../theme/tableTheme";
 
 export const DownloadPage = () => {
   const [downloadDocuments, setDownloadDocuments] = useState<number[]>([]);
-  const { documentFilters, setDocumentFilters } = useDocumentStore();
+  const {
+    documentFilters,
+    setDocumentFilters,
+    pdfBlob,
+    openDrawer,
+    setOpenDrawer,
+  } = useDocumentStore();
 
   const handleDownload = async () => {
     //filter format Id:eq:1 OR Id:eq:3 OR Id:eq:11
@@ -68,6 +82,29 @@ export const DownloadPage = () => {
           text="documentos"
           title="Documentos"
         />
+        <Modal
+          isOpen={openDrawer}
+          onOpenChange={() => setOpenDrawer(!openDrawer)}
+          size="full"
+        >
+          <ModalContent className="h-max-w-4xl overflow-y-auto">
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Visor PDF
+                </ModalHeader>
+                <ModalBody>
+                  <PdfContainer pdfBlob={pdfBlob} />
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="light" onPress={onClose}>
+                    Cerrar
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </Protected>
   );

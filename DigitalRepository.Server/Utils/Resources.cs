@@ -1,10 +1,10 @@
-﻿using DigitalRepository.Interfaces;
-using DigitalRepository.Server.Config.Entities;
+﻿using DigitalRepository.Server.Config.Entities;
 using DigitalRepository.Server.Entities.Response;
+using DigitalRepository.Server.Utils.Interfaces;
 using Lombok.NET;
 using Microsoft.Extensions.Options;
 
-namespace DigitalRepository.Utils
+namespace DigitalRepository.Server.Utils
 {
     [AllArgsConstructor]
     public partial class Resources : IResources
@@ -28,7 +28,7 @@ namespace DigitalRepository.Utils
 
                 var appSettings = _pathResources.Value;
                 string guid = Guid.NewGuid().ToString();
-                string name = $"projectManager_photo_{guid}_{file.FileName}";
+                string name = $"document_{guid}_{file.FileName}";
                 string filePath = Path.Combine(appSettings.SaveDocuments, Path.GetFileName(name));
                 using var stream = new FileStream(filePath, FileMode.Create);
                 file.CopyTo(stream);

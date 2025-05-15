@@ -1,6 +1,6 @@
 ﻿using DigitalRepository.Server.Entities.Response;
 
-namespace DigitalRepository.Interfaces
+namespace DigitalRepository.Server.Utils.Interfaces
 {
     public interface IResources
     {

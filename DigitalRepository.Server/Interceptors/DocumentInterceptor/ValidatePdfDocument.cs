@@ -8,7 +8,6 @@ using FluentValidation.Results;
 using iText.Kernel.Exceptions;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
-using iText.Kernel.Pdf.Xobject;
 using Lombok.NET;
 
 namespace DigitalRepository.Server.Interceptors.DocumentInterceptor
